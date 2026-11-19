@@ -6,6 +6,7 @@ import {DataService} from "../../core/services/data.service";
 import {StatCard} from "../../core/models/stat-card.model";
 import {Olympic} from "../../core/models/olympic.model";
 import {Participation} from "../../core/models/participation.model";
+import {catchError, EMPTY, map, tap} from "rxjs";
 
 @Component({
   selector: 'app-home',
@@ -24,9 +25,8 @@ export class DashboardComponent implements OnInit {
   constructor(private dataService: DataService) { }
 
   ngOnInit() {
-    this.dataService.getOlympicData().subscribe(
-      (data: Olympic[]) => {
-        console.log(`Liste des données : ${JSON.stringify(data)}`);
+    this.dataService.getOlympicData().pipe(
+      map((data: Olympic[]) => {
         if (data && data.length > 0) {
           this.totalJOs = Array.from(new Set(data.map((i: Olympic) => i.participations.map((f: Participation) => f.year)).flat())).length;
           this.countries = data.map((i: Olympic) => i.country);
@@ -38,12 +38,13 @@ export class DashboardComponent implements OnInit {
             { label: 'Number of JOs', value: this.totalJOs }
           ];
         }
-      },
-      (error:HttpErrorResponse) => {
-        console.log(`erreur : ${error}`);
-        this.error = error.message
-      }
-    );
+        return data;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        this.error = error.message;
+        return EMPTY;
+      })
+    ).subscribe();
   }
 }
 
