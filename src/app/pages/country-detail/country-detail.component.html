@@ -2,8 +2,6 @@
   <app-header [titlePage]="titlePage" [stats]="stats"></app-header>
   @if (isLoading) {
     <p class="loading">Loading data...</p>
-  } @else if (error) {
-    <app-error-message [message]="error"></app-error-message>
   } @else if (years.length === 0) {
     <app-error-message message="No participation data is available for this country."></app-error-message>
   } @else {

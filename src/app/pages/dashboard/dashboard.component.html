@@ -6,8 +6,6 @@
   </p>
   @if (isLoading) {
     <p class="loading">Loading data...</p>
-  } @else if (error) {
-    <app-error-message [message]="error"></app-error-message>
   } @else {
     <app-medal-chart [countries]="countries" [sumOfAllMedalsYears]="sumOfAllMedalsYears"></app-medal-chart>
   }
