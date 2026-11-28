@@ -15,16 +15,30 @@ export class DataService {
   /**
    * Returns the olympic data sorted by total number of medals (descending).
    * The order matters: the country detail route uses the index in this list.
+   * Missing or malformed data is normalized (never null, participations always an array).
    */
   getOlympicData(): Observable<Olympic[]> {
-    return this.http.get<Olympic[]>(this.olympicUrl).pipe(
+    return this.http.get<Olympic[] | null>(this.olympicUrl).pipe(
+      map((data: Olympic[] | null) => this.normalize(data)),
       map((data: Olympic[]) =>
         [...data].sort((a: Olympic, b: Olympic) => this.getTotalMedals(b) - this.getTotalMedals(a))
       )
     );
   }
 
+  private normalize(data: Olympic[] | null): Olympic[] {
+    if (!Array.isArray(data)) {
+      return [];
+    }
+    return data
+      .filter((olympic: Olympic) => !!olympic && typeof olympic.country === 'string')
+      .map((olympic: Olympic) => ({
+        ...olympic,
+        participations: Array.isArray(olympic.participations) ? olympic.participations : []
+      }));
+  }
+
   private getTotalMedals(olympic: Olympic): number {
-    return olympic.participations.reduce((acc: number, p: Participation) => acc + p.medalsCount, 0);
+    return olympic.participations.reduce((acc: number, p: Participation) => acc + (p.medalsCount ?? 0), 0);
   }
 }
