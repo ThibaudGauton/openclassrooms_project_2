@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy} from '@angular/core';
 import Chart, {ChartType} from "chart.js/auto";
 import {Router} from "@angular/router";
 
@@ -55,7 +55,7 @@ const legendLinesPlugin = {
   templateUrl: './medal-chart.component.html',
   styleUrl: './medal-chart.component.scss'
 })
-export class MedalChartComponent {
+export class MedalChartComponent implements OnChanges, OnDestroy {
   @Input() countries: string[] = [];
   @Input() sumOfAllMedalsYears: number[] = [];
   public pieChart!: Chart<ChartType, number[], string> | Chart;
@@ -66,6 +66,10 @@ export class MedalChartComponent {
     if (this.countries.length > 0) {
       this.buildPieChart(this.countries, this.sumOfAllMedalsYears);
     }
+  }
+
+  ngOnDestroy() {
+    this.pieChart?.destroy();
   }
 
   buildPieChart(countries: string[], sumOfAllMedalsYears: number[]) {
@@ -104,7 +108,6 @@ export class MedalChartComponent {
           if (e.native) {
             const points = this.pieChart.getElementsAtEventForMode(e.native, 'point', { intersect: true }, true);
             if (points.length) {
-              console.log(points)
               const firstPoint = points[0];
               this.router.navigate(['country', firstPoint.index]);
             }
