@@ -1,5 +1,6 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
+import {Component, DestroyRef, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import Chart from 'chart.js/auto';
 import {DataService} from "../../core/services/data.service";
@@ -22,7 +23,7 @@ export class DashboardComponent implements OnInit {
   titlePage: string = "Medals per Country";
   public stats: StatCard[] = [];
 
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService, private destroyRef: DestroyRef) { }
 
   ngOnInit() {
     this.dataService.getOlympicData().pipe(
@@ -43,7 +44,8 @@ export class DashboardComponent implements OnInit {
       catchError((error: HttpErrorResponse) => {
         this.error = error.message;
         return EMPTY;
-      })
+      }),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 }

@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy} from '@angular/core';
 import Chart from "chart.js/auto";
 
 @Component({
@@ -8,7 +8,7 @@ import Chart from "chart.js/auto";
   templateUrl: './line-chart.component.html',
   styleUrl: './line-chart.component.scss'
 })
-export class LineChartComponent {
+export class LineChartComponent implements OnChanges, OnDestroy {
   @Input() years: number[] = [];
   @Input() medals: string[] = [];
   public lineChart!: Chart<"line", string[], number>;
@@ -19,7 +19,12 @@ export class LineChartComponent {
     }
   }
 
+  ngOnDestroy() {
+    this.lineChart?.destroy();
+  }
+
   buildChart(years: number[], medals: string[]) {
+    this.lineChart?.destroy();
     this.lineChart = new Chart("countryChart", {
       type: 'line',
       data: {

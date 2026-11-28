@@ -1,5 +1,6 @@
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Component, OnInit} from '@angular/core';
+import {Component, DestroyRef, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import Chart from 'chart.js/auto';
 import {DataService} from "../../core/services/data.service";
@@ -24,7 +25,7 @@ export class CountryDetailComponent implements OnInit {
   public error!: string;
   public stats: StatCard[] = [];
 
-  constructor(private route: ActivatedRoute, private router: Router, private dataService: DataService) {
+  constructor(private route: ActivatedRoute, private router: Router, private dataService: DataService, private destroyRef: DestroyRef) {
   }
 
   ngOnInit() {
@@ -38,7 +39,8 @@ export class CountryDetailComponent implements OnInit {
       catchError((error: HttpErrorResponse) => {
         this.error = error.message;
         return EMPTY;
-      })
+      }),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe((selectedCountry) => {
       if (selectedCountry) {
         this.titlePage = selectedCountry.country;
