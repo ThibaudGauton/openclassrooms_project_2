@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // Set to true to simulate a data loading failure in DataService (error handling tests).
+  simulateDataError: false
 };
 
 /*

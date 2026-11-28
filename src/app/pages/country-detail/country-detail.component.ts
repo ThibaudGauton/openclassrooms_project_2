@@ -1,4 +1,3 @@
-import {HttpErrorResponse} from '@angular/common/http';
 import {Component, DestroyRef, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
@@ -23,7 +22,6 @@ export class CountryDetailComponent implements OnInit {
   public totalMedals: number = 0;
   public totalAthletes: number = 0;
   public isLoading: boolean = true;
-  public error: string | null = null;
   public stats: StatCard[] = [];
 
   constructor(private route: ActivatedRoute, private router: Router, private dataService: DataService, private destroyRef: DestroyRef) {
@@ -41,16 +39,14 @@ export class CountryDetailComponent implements OnInit {
           map((data: Olympic[]) => ({data, index}))
         );
       }),
-      catchError((error: HttpErrorResponse) => {
-        this.error = 'Unable to load the Olympic data. Please try again later.';
-        this.isLoading = false;
+      catchError(() => {
+        this.redirectToErrorPage();
         return EMPTY;
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe(({data, index}) => {
-      this.isLoading = false;
       if (data.length === 0) {
-        this.error = 'No Olympic data is available at the moment.';
+        this.redirectToErrorPage('No Olympic data is available at the moment.');
         return;
       }
       const selectedCountry = data[index];
@@ -58,6 +54,7 @@ export class CountryDetailComponent implements OnInit {
         this.redirectToNotFound();
         return;
       }
+      this.isLoading = false;
       this.displayCountry(selectedCountry);
     });
   }
@@ -75,6 +72,10 @@ export class CountryDetailComponent implements OnInit {
       { label: 'Total Number of medals', value: this.totalMedals },
       { label: 'Total Number of athletes', value: this.totalAthletes }
     ];
+  }
+
+  private redirectToErrorPage(message?: string) {
+    this.router.navigate(['error'], { replaceUrl: true, state: { message } });
   }
 
   private redirectToNotFound() {

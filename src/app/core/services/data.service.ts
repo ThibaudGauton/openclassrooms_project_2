@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {map, Observable} from "rxjs";
+import {HttpClient, HttpErrorResponse} from "@angular/common/http";
+import {map, Observable, throwError} from "rxjs";
+import {environment} from "../../../environments/environment";
 import {Olympic} from "../models/olympic.model";
 import {Participation} from "../models/participation.model";
 
@@ -18,6 +19,9 @@ export class DataService {
    * Missing or malformed data is normalized (never null, participations always an array).
    */
   getOlympicData(): Observable<Olympic[]> {
+    if (environment.simulateDataError) {
+      return throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Simulated data error', url: this.olympicUrl }));
+    }
     return this.http.get<Olympic[] | null>(this.olympicUrl).pipe(
       map((data: Olympic[] | null) => this.normalize(data)),
       map((data: Olympic[]) =>

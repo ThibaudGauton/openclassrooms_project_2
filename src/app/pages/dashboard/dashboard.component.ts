@@ -1,5 +1,5 @@
-import {HttpErrorResponse} from '@angular/common/http';
 import {Component, DestroyRef, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {DataService} from "../../core/services/data.service";
 import {StatCard} from "../../core/models/stat-card.model";
@@ -18,26 +18,24 @@ export class DashboardComponent implements OnInit {
   public totalCountries: number = 0
   public totalJOs: number = 0
   public isLoading: boolean = true;
-  public error: string | null = null;
   titlePage: string = "Medals per Country";
   public stats: StatCard[] = [];
 
-  constructor(private dataService: DataService, private destroyRef: DestroyRef) { }
+  constructor(private dataService: DataService, private router: Router, private destroyRef: DestroyRef) { }
 
   ngOnInit() {
     this.dataService.getOlympicData().pipe(
-      catchError((error: HttpErrorResponse) => {
-        this.error = 'Unable to load the Olympic data. Please try again later.';
-        this.isLoading = false;
+      catchError(() => {
+        this.redirectToErrorPage();
         return EMPTY;
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((data: Olympic[]) => {
-      this.isLoading = false;
       if (data.length === 0) {
-        this.error = 'No Olympic data is available at the moment.';
+        this.redirectToErrorPage('No Olympic data is available at the moment.');
         return;
       }
+      this.isLoading = false;
       this.totalJOs = new Set(data.flatMap((i: Olympic) => i.participations.map((p: Participation) => p.year))).size;
       this.countries = data.map((i: Olympic) => i.country);
       this.totalCountries = this.countries.length;
@@ -49,5 +47,9 @@ export class DashboardComponent implements OnInit {
         { label: 'Number of JOs', value: this.totalJOs }
       ];
     });
+  }
+
+  private redirectToErrorPage(message?: string) {
+    this.router.navigate(['error'], { replaceUrl: true, state: { message } });
   }
 }

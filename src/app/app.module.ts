@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { ErrorComponent } from './pages/error/error.component';
 import { CountryDetailComponent } from "./pages/country-detail/country-detail.component";
 import {MedalChartComponent} from "./components/charts/medal-chart/medal-chart.component";
 import {HeaderComponent} from "./components/header/header.component";
@@ -12,7 +13,7 @@ import {LineChartComponent} from "./components/charts/line-chart/line-chart.comp
 import {ErrorMessageComponent} from "./components/error-message/error-message.component";
 
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, NotFoundComponent, CountryDetailComponent],
+  declarations: [AppComponent, DashboardComponent, NotFoundComponent, ErrorComponent, CountryDetailComponent],
   imports: [BrowserModule, AppRoutingModule, MedalChartComponent, HeaderComponent, LineChartComponent, ErrorMessageComponent],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
