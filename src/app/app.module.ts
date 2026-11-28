@@ -9,10 +9,11 @@ import { CountryDetailComponent } from "./pages/country-detail/country-detail.co
 import {MedalChartComponent} from "./components/charts/medal-chart/medal-chart.component";
 import {HeaderComponent} from "./components/header/header.component";
 import {LineChartComponent} from "./components/charts/line-chart/line-chart.component";
+import {ErrorMessageComponent} from "./components/error-message/error-message.component";
 
 @NgModule({
   declarations: [AppComponent, DashboardComponent, NotFoundComponent, CountryDetailComponent],
-  imports: [BrowserModule, AppRoutingModule, MedalChartComponent, HeaderComponent, MedalChartComponent, HeaderComponent, LineChartComponent],
+  imports: [BrowserModule, AppRoutingModule, MedalChartComponent, HeaderComponent, LineChartComponent, ErrorMessageComponent],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent],
 })

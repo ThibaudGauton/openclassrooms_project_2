@@ -1,11 +1,19 @@
 <div>
   <app-header [titlePage]="titlePage" [stats]="stats"></app-header>
-  <div class="chart-container wrapper-container">
-    <div class="container">
-      <app-line-chart [years]="years" [medals]="medals"></app-line-chart>
-      <h2>Date</h2>
+  @if (isLoading) {
+    <p class="loading">Loading data...</p>
+  } @else if (error) {
+    <app-error-message [message]="error"></app-error-message>
+  } @else if (years.length === 0) {
+    <app-error-message message="No participation data is available for this country."></app-error-message>
+  } @else {
+    <div class="chart-container wrapper-container">
+      <div class="container">
+        <app-line-chart [years]="years" [medals]="medals"></app-line-chart>
+        <h2>Date</h2>
+      </div>
     </div>
-  </div>
+  }
   <div class="center">
     <a routerLink="">Go back</a>
   </div>
