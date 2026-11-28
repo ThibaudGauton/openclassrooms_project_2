@@ -4,6 +4,26 @@ import {Router} from "@angular/router";
 
 const CHART_COLORS = ['#7B3F56', '#7B8BC4', '#9A7E9E', '#B9E4EC', '#CDE3F5', '#A8707D'];
 
+// Geometry of the labels drawn around the pie by legendLinesPlugin
+const LABEL_FONT = '13px sans-serif';
+const LABEL_LINE_RADIAL = 20;     // length of the line going out of the pie
+const LABEL_LINE_HORIZONTAL = 20; // length of the horizontal line
+const LABEL_TEXT_GAP = 6;         // space between the line and the text
+const LABEL_SAFETY_MARGIN = 4;
+
+/**
+ * Horizontal padding needed so that the longest label is never cut on the sides of the canvas.
+ */
+function getHorizontalPadding(labels: string[]): number {
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) {
+    return 60;
+  }
+  ctx.font = LABEL_FONT;
+  const maxLabelWidth = Math.max(0, ...labels.map((label: string) => ctx.measureText(label).width));
+  return Math.ceil(LABEL_LINE_RADIAL + LABEL_LINE_HORIZONTAL + LABEL_TEXT_GAP + maxLabelWidth + LABEL_SAFETY_MARGIN);
+}
+
 const legendLinesPlugin = {
   id: 'legendLines',
   afterDraw: (chart: Chart) => {
@@ -13,7 +33,7 @@ const legendLinesPlugin = {
     const centerY = (chartArea.top + chartArea.bottom) / 2;
 
     ctx.save();
-    ctx.font = '13px sans-serif';
+    ctx.font = LABEL_FONT;
     ctx.fillStyle = '#333';
     ctx.textBaseline = 'middle';
 
@@ -25,11 +45,11 @@ const legendLinesPlugin = {
       const x1 = centerX + Math.cos(angle) * radius;
       const y1 = centerY + Math.sin(angle) * radius;
 
-      const x2 = centerX + Math.cos(angle) * (radius + 20);
-      const y2 = centerY + Math.sin(angle) * (radius + 20);
+      const x2 = centerX + Math.cos(angle) * (radius + LABEL_LINE_RADIAL);
+      const y2 = centerY + Math.sin(angle) * (radius + LABEL_LINE_RADIAL);
 
       const isRight = Math.cos(angle) >= 0;
-      const x3 = isRight ? x2 + 20 : x2 - 20;
+      const x3 = isRight ? x2 + LABEL_LINE_HORIZONTAL : x2 - LABEL_LINE_HORIZONTAL;
       const y3 = y2;
 
       ctx.strokeStyle = '#999';
@@ -41,7 +61,7 @@ const legendLinesPlugin = {
       ctx.stroke();
 
       ctx.textAlign = isRight ? 'left' : 'right';
-      ctx.fillText(label, x3 + (isRight ? 6 : -6), y3);
+      ctx.fillText(label, x3 + (isRight ? LABEL_TEXT_GAP : -LABEL_TEXT_GAP), y3);
     });
 
     ctx.restore();
@@ -73,6 +93,7 @@ export class MedalChartComponent implements OnChanges, OnDestroy {
   }
 
   buildPieChart(countries: string[], sumOfAllMedalsYears: number[]) {
+    const horizontalPadding = getHorizontalPadding(countries);
     const data = {
       labels: countries,
       datasets: [
@@ -90,7 +111,8 @@ export class MedalChartComponent implements OnChanges, OnDestroy {
       options: {
         responsive: true,
         layout: {
-          padding: 60
+          // Sides: room for the longest label. Top: the labels only need ~30px above the pie.
+          padding: { top: 35, right: horizontalPadding, bottom: 60, left: horizontalPadding }
         },
         plugins: {
           legend: {
