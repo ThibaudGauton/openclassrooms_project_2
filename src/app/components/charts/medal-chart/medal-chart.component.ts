@@ -104,9 +104,9 @@ export class MedalChartComponent {
           if (e.native) {
             const points = this.pieChart.getElementsAtEventForMode(e.native, 'point', { intersect: true }, true);
             if (points.length) {
+              console.log(points)
               const firstPoint = points[0];
-              const countryName = this.pieChart.data.labels ? this.pieChart.data.labels[firstPoint.index] : '';
-              this.router.navigate(['country', countryName]);
+              this.router.navigate(['country', firstPoint.index]);
             }
           }
         }

@@ -30,9 +30,9 @@ export class CountryDetailComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.pipe(
       switchMap((param: ParamMap) => {
-        const countryName = param.get('countryName');
+        const index = Number(param.get('index'));
         return this.dataService.getOlympicData().pipe(
-          map((data: Olympic[]) => data.find((i: Olympic) => i.country === countryName))
+          map((data: Olympic[]) => data[index])
         );
       }),
       catchError((error: HttpErrorResponse) => {
